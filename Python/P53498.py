@@ -22,8 +22,3 @@ class Tree:
         for node in self.child:
             l += node.num_children()
         return l
-
-t = Tree(2)
-t.addChild(Tree(3))
-t.addChild(Tree(4))
-t.ithChild(0).addChild(Tree(5))
