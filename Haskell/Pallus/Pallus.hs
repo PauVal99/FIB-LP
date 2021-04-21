@@ -21,13 +21,15 @@ main = do
     input <- getContents
     print $ parseInput input
 
-parseInput input = map (parseRegla) (takeWhile (/= "end.") (lines input))
+parseInput input = map (parseRegla) (takeWhile (/= "end") (map (init) (lines input)))
+
+splitCap regla = unwords $ tail $ (dropWhile (/= "=>") (words regla))
+
+splitCos regla = map (unwords) (splitOn ["&"] (takeWhile (/= "=>") (words regla)))
 
 parseRegla regla
-    | isInfixOf regla "=>" = Regla (dropWhile (/= "=>") (words regla)) (map (parseAtom) (tail $ words atom))
+    | isInfixOf "=>" regla = Regla (parseAtom $ splitCap regla) (map (parseAtom) (splitCos regla))
     | otherwise = Regla (parseAtom regla) []
-
-splitReglas reglas = splitOn "&" reglas
 
 parseAtom atom = Atom (head $ words atom) (map (parseTerm) (tail $ words atom))
 
