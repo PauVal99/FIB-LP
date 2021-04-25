@@ -4,7 +4,7 @@ import Data.Char (isUpper)
 import Data.List (nub, isInfixOf)
 import Data.List.Split (splitOn)    -- cal instal·lar: cabal install split
 import Data.String.Utils (strip)    -- cal instal·lar: cabal install MissingH
-import Data.Maybe (mapMaybe, fromMaybe)
+import Data.Maybe (isJust, mapMaybe, fromMaybe)
 
 type Programa = [ Regla ]
 type Sustitucio = [ (Term, Term) ]
@@ -18,19 +18,19 @@ data Term = Var String | Sym String
     deriving (Eq, Show)
 
 main = do
-    programa <- getContents
-    print "hola"--print $ createBaseConeixement (parsePrograma programa)
-    --queries <- getContents
-    --evaluateQueries baseConeixement queries
+    contents <- getContents
+    let input = splitOn ["end."] (lines contents)
+    let baseConeixement = createBaseConeixement (parsePrograma $ unlines (input !! 0))
+    putStrLn $ unlines $ map (see) (evaluateQueries baseConeixement (unlines (input !! 1)))
 
--- Helpers
-
-getBlock block = takeWhile (/= "end") (map (init) (lines block))
+see [] = "False"
+see [[]] = "True"
+see result = show result
 
 -- Parser
 
 parsePrograma :: String -> Programa
-parsePrograma programa = map (parseRegla) (getBlock programa)
+parsePrograma programa = map (parseRegla) (map (init) (lines programa))
 
 splitCap regla = unwords $ tail $ (dropWhile (/= "=>") (words regla))
 
@@ -43,8 +43,8 @@ parseRegla regla
 parseAtom atom = Atom (head $ words atom) (map (parseTerm) (tail $ words atom))
 
 parseTerm term
-    | isUpper $ head term = Var term
-    | otherwise = Sym term
+    | isUpper $ head term = (Var term)
+    | otherwise = (Sym term)
 
 -- BaseConeixement
 
@@ -61,26 +61,31 @@ loopBaseConeixement baseConeixement (regla:regles)
     | otherwise = loopBaseConeixement (avaluaRegla baseConeixement regla) regles
 
 avaluaRegla :: BaseConeixement -> Regla -> BaseConeixement
-avaluaRegla baseConeixement regla = nub (baseConeixement ++ (sustitueix (_cap regla) (avaluaAtom baseConeixement (head $ _cos regla) []))) --falta multiples atoms
+avaluaRegla baseConeixement regla = nub (baseConeixement ++ (map (sustitueix (_cap regla)) (avaluaSustitucions baseConeixement [] (_cos regla))))
+
+avaluaSustitucions :: BaseConeixement -> [ Sustitucio ] -> [ Atom ] -> [ Sustitucio ]
+avaluaSustitucions baseConeixement sustitucions [] = sustitucions
+avaluaSustitucions baseConeixement sustitucions (atom:atoms) = avaluaSustitucions baseConeixement (avaluaAtom baseConeixement atom sustitucions) atoms
 
 avaluaAtom :: BaseConeixement -> Atom -> [ Sustitucio ] -> [ Sustitucio ]
-avaluaAtom baseConeixement atom sustitucio = mapMaybe (`unifica` atom) baseConeixement
+avaluaAtom baseConeixement atom [] = mapMaybe (unifica atom) baseConeixement
+avaluaAtom baseConeixement atom (sustitucio:sustitucions) = mapMaybe (unifica (sustitueix atom sustitucio)) baseConeixement ++ avaluaAtom baseConeixement atom sustitucions
 
 -- Sustitucio
 
 sustitueix :: Atom -> Sustitucio -> Atom
-sustitueix atom sustitucio = Atom (_nomPredicat atom) (mapMaybe (`lookup` sustitucio) (_termes atom))
+sustitueix atom sustitucio = Atom (_nomPredicat atom) (mapMaybe (\terme -> if isJust (lookup terme sustitucio) then lookup terme sustitucio else Just terme) (_termes atom))
 
 -- Unificacio
 
-unificable (Sym terme1, Sym terme2)
+unificable ((Sym terme1), (Sym terme2))
     | terme1 == terme2 = True
     | otherwise = False
 
-unificable (Var terme1, Sym terme2) = True
+unificable ((Var terme1), (Sym terme2)) = True
 
-unificaTerm (Sym terme1, Sym terme2) = Nothing
-unificaTerm (Var terme1, Sym terme2) = Just (Var terme1, Sym terme2)
+unificaTerm ((Sym terme1), (Sym terme2)) = Nothing
+unificaTerm ((Var terme1), (Sym terme2)) = Just (Var terme1, Sym terme2)
 
 uniqueSustitucio [] = True
 uniqueSustitucio sustitucions = and $ map (\sustitucio -> uniqueVar sustitucio sustitucions) sustitucions  
@@ -90,36 +95,15 @@ uniqueVar (var, sym) ((susVar, susSym):sustitucions)
     | var == susVar && sym /= susSym = False
     | otherwise = uniqueVar (var, sym) sustitucions
 
+unifica :: Atom -> Atom -> Maybe Sustitucio
 unifica (Atom predicat1 termes1) (Atom predicat2 termes2)
     | predicat1 /= predicat2 = Nothing
     | not $ and $ map (unificable) (zip termes1 termes2) = Nothing
     | not (uniqueSustitucio (mapMaybe (unificaTerm) (zip termes1 termes2))) = Nothing
     | otherwise = Just (mapMaybe (unificaTerm) (zip termes1 termes2))
 
-{- Evaluator
-calculateBaseConeixement programa = foldr (\baseConeixement regla -> evaluateRegla baseConeixement regla) programa  
+-- Evaluacio
 
-evaluateRegla :: BaseConeixement -> Regla -> BaseConeixement
-evaluateRegla baseConeixement regla
-    | empty $ _cos regla = (_cap regla):baseConeixement
-    | otherwise = 
+evaluateQueries baseConeixement queries = map (\query -> evaluateQuery baseConeixement (parseRegla query)) (map (init) (lines queries))
 
-evaluateQueries programa queries = map (evaluateQuery programa) (getBlock queries)
-
-evaluateQuery programa query = calculateBaseConeixement programa
-
-evaluateRegla programa query = 
-
-
-avaluaAtom :: BaseConeixement -> Atom -> [ Sustitucio ] -> [ Sustitucio ]
-unifica :: Atom -> Atom -> Maybe Sustitucio
-sustitueix :: Atom -> Sustitucio -> Atom
-sustitucioBuida :: Sustitucio
-sustitucioBuida = []
-
-sustitueix :: Atom -> Sustitucio -> Atom
-sustitueix (ancestre X Y) [ (X, ana), (Y, brooke)] -> ancestre ana brooke
-
-avaluaAtom :: BaseConeixement -> Atom -> [ Sustitucio ] -> [ Sustitucio ]
-avaluaAtom [progenitor ana brooke, progenitor xerces brooke, progenitor brooke damocles] (progenitor X Y) [[]] -> [[(X, ana), (Y, brooke)], [(X, xerces), (Y, brooke)], [(X, brooke), (Y, damocles)]]
--}
+evaluateQuery baseConeixement query = avaluaSustitucions baseConeixement [] (_cos query)
