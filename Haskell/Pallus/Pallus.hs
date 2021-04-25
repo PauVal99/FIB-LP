@@ -17,6 +17,21 @@ data Atom = Atom { _nomPredicat::String, _termes::[ Term ] }
 data Term = Var String | Sym String
     deriving (Eq, Show)
 
+{-  Autor: Pau Val 
+    Dni: 46470753N 
+    
+    Notes:
+
+    El programa crea correctament la base del coneixement amb regles amb un unic atom com a cos.
+    Per contra, no crea del tot be la base del coneixement amb multiples atoms en regles i deriva en solucions erroneas.
+    Les consultes sense variables i un atom funcionen. Per lo general es deixa algunes sustitucions posibles en consultes amb variables.
+    Les consultes amb multiples atoms no van gaire be, la funcio d'avaluacio esta reusada i dona els mateixos problemes.
+
+    Segurament el que causa aquests errors es a partir de avaluaAtom on no gestiono be les sustitucions encadenades.
+
+    Al final deixo alguns jocs de proves que funcionen.
+-}
+
 main = do
     contents <- getContents
     let input = splitOn ["end."] (lines contents)
@@ -83,6 +98,7 @@ unificable ((Sym terme1), (Sym terme2))
     | otherwise = False
 
 unificable ((Var terme1), (Sym terme2)) = True
+unificable (_, (Var terme)) = False
 
 unificaTerm ((Sym terme1), (Sym terme2)) = Nothing
 unificaTerm ((Var terme1), (Sym terme2)) = Just (Var terme1, Sym terme2)
@@ -107,3 +123,37 @@ unifica (Atom predicat1 termes1) (Atom predicat2 termes2)
 evaluateQueries baseConeixement queries = map (\query -> evaluateQuery baseConeixement (parseRegla query)) (map (init) (lines queries))
 
 evaluateQuery baseConeixement query = avaluaSustitucions baseConeixement [] (_cos query)
+
+{- Jocs de prova correctes
+
+    huma pau.
+    huma gerard.
+    huma X => persona X.
+    end.
+    persona X => query X.
+    end.
+
+    dimoni bel.
+    huma bel.
+    huma X & monstre X => dimoni X.
+    end.
+    dimoni bel => query.
+    end.
+
+    progenitor ana brooke.
+    progenitor xerces brooke.
+    progenitor brooke damocles.
+    end.
+    progenitor X Y => query X Y.
+    end.
+
+    progenitor ana brooke.
+    progenitor xerces brooke.
+    progenitor brooke damocles.
+    progenitor X Y => ancestre X Y.
+    end.
+    progenitor xerces brooke => query.
+    ancestre ana brooke => query.
+    end.
+
+-}
