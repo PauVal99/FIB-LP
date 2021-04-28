@@ -11,19 +11,25 @@ switch ($argv[1]) {
     case 1:
         test(
             $pattern = '/^[a-zA-Z_][a-zA-Z0-9_]*$/',
-            $tests = ['a', '1', '_', 'A', 'ImAnId', 'ImNotAnId`', '``%$@', 'Hi_34']
+            $tests = ['2A', 'a', '1', '_', 'A', 'ImAnId', 'ImNotAnId`', '``%$@', 'Hi_34']
         );
         break;
     case 2:
         test(
             $pattern = '/^[-+]?[0-9]*(\.[0-9]+)?(e[-+]?[0-9]+)?$/',
-            $tests = ['3.1416', '-3e4', '+1.0e-5', '.567e+8', '111', '111.', '12.4e', 'ImNotFloating']
+            $tests = ['', '3.1416', '-3e4', '+1.0e-5', '.567e+8', '111', '111.', '12.4e', 'ImNotFloating']
+        );
+        break;
+    case 6:
+        test(
+            $pattern = '/^[0-9]*\.?[0-9]+?$/',
+            $tests = ['', '3.1416', '111', '111.', 'ImNotFloating']
         );
         break;
     case 3:
         test(
             $pattern = '/^[ac]*(a[ac]*b[abc]*)?$/',
-            $tests = ['a', 'b', 'c', 'aa', 'acaac', 'cb', 'ab', 'acb', 'abcb', 'ccaccbaccb']
+            $tests = ['', 'a', 'b', 'c', 'aa', 'acaac', 'cb', 'ab', 'acb', 'abcb', 'ccaccbaccb']
         );
         break;
     case 4:

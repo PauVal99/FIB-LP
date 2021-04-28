@@ -6,7 +6,12 @@ class Tree:
         self.child = []
 
     def __iter__(self):
-        #F
+        yield self.rt
+        breath = self.child
+        while breath:
+            node = breath.pop(0)
+            yield node.rt
+            breath += node.child
 
     def addChild(self, a):
         self.child.append(a)
