@@ -1,3 +1,7 @@
 *.o
 *.hi
-Pallus
+Haskell/Pallus/Pallus
+Python/ANTLR/.antlr
+Python/ANTLR/__pycache__
+Python/Logo3D/.antlr
+Python/Logo3D/__pycache__

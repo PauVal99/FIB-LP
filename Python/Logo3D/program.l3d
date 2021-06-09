@@ -1,0 +1,5 @@
+IF A == 1 THEN
+    << A
+ELSE
+    << 2.1
+END
