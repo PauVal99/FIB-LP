@@ -6,4 +6,6 @@ El programa ha de abortar quan es dona:
  + crida a procediment no definit
  + repetició de procediment ja definit
  + nombre de paràmetres incorrectes
- + noms de paràmetres formals repetits 
+ + noms de paràmetres formals repetits
+
+ + Documentar docstrings

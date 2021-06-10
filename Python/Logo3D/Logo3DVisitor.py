@@ -49,8 +49,23 @@ class Logo3DVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
+    # Visit a parse tree produced by Logo3DParser#procDef.
+    def visitProcDef(self, ctx:Logo3DParser.ProcDefContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by Logo3DParser#proc.
+    def visitProc(self, ctx:Logo3DParser.ProcContext):
+        return self.visitChildren(ctx)
+
+
     # Visit a parse tree produced by Logo3DParser#assign.
     def visitAssign(self, ctx:Logo3DParser.AssignContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by Logo3DParser#Mod.
+    def visitMod(self, ctx:Logo3DParser.ModContext):
         return self.visitChildren(ctx)
 
 

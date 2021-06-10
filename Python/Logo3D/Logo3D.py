@@ -5,10 +5,17 @@ from Logo3DParser import Logo3DParser
 from visitor import EvalVisitor
 
 input_stream = FileStream(sys.argv[1])
+
 lexer = Logo3DLexer(input_stream)
 token_stream = CommonTokenStream(lexer)
+
 parser = Logo3DParser(token_stream)
 tree = parser.root()
-print(tree.toStringTree(recog=parser))
-visitor = EvalVisitor()
+
+if len(sys.argv) == 3:
+    visitor = EvalVisitor(sys.argv[2])
+elif len(sys.argv) > 3:
+    visitor = EvalVisitor(sys.argv[2], map(lambda param: float(param), sys.argv[3:]))
+else:
+    visitor = EvalVisitor()
 visitor.visit(tree)

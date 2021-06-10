@@ -1,5 +1,16 @@
-IF A == 1 THEN
-    << A
-ELSE
-    << 2.1
+PROC main() IS
+    FOR I FROM 1 TO 100 DO
+        output := I
+        IF I % 15 == 0 THEN
+            output := -3
+        ELSE 
+            IF I % 3 == 0 THEN
+                output := -2
+            ELSE 
+                IF I % 5 == 0 THEN
+                    output := -1
+            END
+        END
+        << output
+    END
 END
