@@ -1,0 +1,17 @@
+PROC main() IS
+    FOR i FROM 1 TO 20 DO
+        a := i
+        IF i % 15 == 0 THEN
+            a := -15
+        ELSE
+            IF i % 5 == 0 THEN
+                a := -5
+            ELSE
+                IF i % 3 == 0 THEN
+                    a := -2
+                END
+            END
+        END
+        << a
+    END
+END

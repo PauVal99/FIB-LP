@@ -13,7 +13,7 @@ while_: 'WHILE' expr 'DO' inss 'END';
 for_: 'FOR' VAR 'FROM' expr 'TO' expr 'DO' inss 'END';
 
 COMMA: ',';
-PROCNAME: [a-zA-Z][a-zA-Z0-9]*LP;
+PROCNAME: [a-zA-Z][a-zA-Z0-9_]*LP;
 procDef: 'PROC' PROCNAME (VAR (COMMA VAR)*)? RP 'IS' inss 'END';
 proc: PROCNAME (expr (COMMA expr)*)? RP;
 

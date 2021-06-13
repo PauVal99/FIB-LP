@@ -5,7 +5,11 @@ else:
     from Logo3DParser import Logo3DParser
     from Logo3DVisitor import Logo3DVisitor
 from collections import defaultdict
+from Turtle3D import Turtle3D
 
+class Logo3DException(Exception):
+    def __init__(self, message):
+        self.message = 'Error: ' + message
 
 class Process:
     def __init__(self, name, params, inss):
@@ -15,13 +19,33 @@ class Process:
 
 
 class EvalVisitor(Logo3DVisitor):
-    def __init__(self, entryProc = 'main', entryParams = []):
+    __TURTLE_LIBRARY = [
+        'left',
+        'right',
+        'up',
+        'down',
+        'forward',
+        'backward',
+        'color',
+        'hide',
+        'show',
+        'home'
+    ]
+
+    def __init__(self, entryProc='main', entryParams=[]):
         self.entryProc = entryProc
         self.entryParams = entryParams
+
+        self.turtle = Turtle3D()
         self.procs = {}
         self.stack = []
 
+    def __turtle__(self, name, paramsValues):
+        getattr(self.turtle, name)(*paramsValues)
+
     def __proc__(self, name, paramsValues):
+        if len(self.procs[name].params) != len(paramsValues):
+            raise Logo3DException('In \"'+ name +'\" proc expected ' + str(len(self.procs[name].params)) + ' param(s), ' + str(len(paramsValues)) + ' given.')
         variables = defaultdict(lambda: 0)
         for param, value in zip(self.procs[name].params, paramsValues):
             variables[param] = value
@@ -66,28 +90,47 @@ class EvalVisitor(Logo3DVisitor):
 
     # Visit a parse tree produced by Logo3DParser#for_.
     def visitFor_(self, ctx):
-        self.stack[-1][ctx.VAR().getText()] = int(self.visit(ctx.expr(0)))
-        while self.stack[-1][ctx.VAR().getText()] < int(self.visit(ctx.expr(1))):
+        self.stack[-1][ctx.VAR().getText()] = self.visit(ctx.expr(0))
+        while self.stack[-1][ctx.VAR().getText()] <= self.visit(ctx.expr(1)):
             self.visit(ctx.inss())
             self.stack[-1][ctx.VAR().getText()] += 1
 
     # Visit a parse tree produced by Logo3DParser#proc.
     def visitProc(self, ctx):
         name = ctx.PROCNAME().getText()[:-1]
-        paramsLen = len(self.procs[name].params)
-        paramsValues = [self.visit(ctx.expr(i)) for i in range(paramsLen)]
-        self.__proc__(name, paramsValues);
+        i = 1
+        paramsValues = []
+        while ctx.getChild(i).getText() != ')':
+            if ctx.getChild(i).getText() != ',':
+                paramsValues.append(self.visit(ctx.getChild(i)))
+            i += 1
+
+        if name in self.__TURTLE_LIBRARY:
+            self.__turtle__(name, paramsValues)
+        elif name in self.procs:
+            self.__proc__(name, paramsValues)
+        else:
+            raise Logo3DException('Proc \"' + name + '\" not defined.')
 
     # Visit a parse tree produced by Logo3DParser#procDef.
     def visitProcDef(self, ctx):
+        name = ctx.PROCNAME().getText()[:-1]
         i = 2
         params = []
         while ctx.getChild(i).getText() != ')':
             if ctx.getChild(i).getText() != ',':
-                params.append(ctx.getChild(i).getText())
+                param = ctx.getChild(i).getText()
+                if param in params:
+                    raise Logo3DException('Duplicated param in \"' +  name + '\" proc definition.')
+                else:
+                    params.append(ctx.getChild(i).getText())
             i += 1
-        proc = Process(ctx.PROCNAME().getText()[:-1], params, ctx.inss())
-        self.procs[proc.name] = proc
+        if name in self.procs:
+            raise Logo3DException('Proc \"' + name + '\" already defined.')
+        elif name in self.__TURTLE_LIBRARY:
+            raise Logo3DException('In \"'+ name +'\" proc, cannot override language procs.')
+        else:
+            self.procs[name] = Process(name, params, ctx.inss())
 
     # Visit a parse tree produced by Logo3DParser#assign.
     def visitAssign(self, ctx):
@@ -127,7 +170,10 @@ class EvalVisitor(Logo3DVisitor):
 
     # Visit a parse tree produced by Logo3DParser#Div.
     def visitDiv(self, ctx):
-        return self.visit(ctx.expr(0)) / self.visit(ctx.expr(1))
+        den = self.visit(ctx.expr(1))
+        if den == 0:
+            raise Logo3DException('Division by zero.')
+        return self.visit(ctx.expr(0)) / den
 
     # Visit a parse tree produced by Logo3DParser#Min.
     def visitMin(self, ctx):

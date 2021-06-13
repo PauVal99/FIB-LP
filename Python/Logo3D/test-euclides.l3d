@@ -1,0 +1,15 @@
+PROC main() IS
+    >> valor1 >> valor2
+    euclides(valor1, valor2)
+END
+
+PROC euclides(a, b) IS
+    WHILE a != b DO
+        IF a > b THEN
+            a := a - b
+        ELSE
+            b := b - a
+        END
+    END
+    << a
+END
