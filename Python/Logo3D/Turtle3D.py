@@ -29,22 +29,22 @@ class Turtle3D:
         Shows the turtle.
     home :: (degrees) -> Turtle3D
         The turtle returns to its origin and direction.
-    
+
     Example
     -------
     from Turtle3D import Turtle3D
-    
+
     turtle = Turtle3D
 
     turtle.forward()
     turtle.right()
     turtle.forward()
-    
+
     Same as
     turtle.forward().right().forward()
     turtle.forward(1).right(90).forward(1)
     turtle.backward(-1).left(-90).backward(-1)
-    
+
     """
 
     def left(self, degrees=90):
@@ -208,7 +208,7 @@ class Turtle3D:
         self.__position = self.__HOME_POSITION
         self.__direction = self.__HOME_DIRECTION
         return self
-    
+
     """Default wake radius, for easy programming prupouses. Can not be modified."""
     __RADIUS = 0.2
     """Starting position, for easy programming prupouses. Can not be modified."""

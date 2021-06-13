@@ -12,12 +12,13 @@ token_stream = CommonTokenStream(lexer)
 parser = Logo3DParser(token_stream)
 tree = parser.root()
 
-#print(tree.toStringTree(recog=parser))
+# print(tree.toStringTree(recog=parser))
 
 if len(sys.argv) == 3:
     visitor = EvalVisitor(sys.argv[2])
 elif len(sys.argv) > 3:
-    visitor = EvalVisitor(sys.argv[2], [float(param) for param in sys.argv[3:]])
+    visitor = EvalVisitor(sys.argv[2], [float(param)
+                          for param in sys.argv[3:]])
 else:
     visitor = EvalVisitor()
 

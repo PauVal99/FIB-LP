@@ -7,9 +7,11 @@ else:
 from collections import defaultdict
 from Turtle3D import Turtle3D
 
+
 class Logo3DException(Exception):
     def __init__(self, message):
         self.message = 'Error: ' + message
+
 
 class Process:
     def __init__(self, name, params, inss):
@@ -45,7 +47,8 @@ class EvalVisitor(Logo3DVisitor):
 
     def __proc__(self, name, paramsValues):
         if len(self.procs[name].params) != len(paramsValues):
-            raise Logo3DException('In \"'+ name +'\" proc expected ' + str(len(self.procs[name].params)) + ' param(s), ' + str(len(paramsValues)) + ' given.')
+            raise Logo3DException('In \"' + name + '\" proc expected ' + str(len(
+                self.procs[name].params)) + ' param(s), ' + str(len(paramsValues)) + ' given.')
         variables = defaultdict(lambda: 0)
         for param, value in zip(self.procs[name].params, paramsValues):
             variables[param] = value
@@ -121,14 +124,16 @@ class EvalVisitor(Logo3DVisitor):
             if ctx.getChild(i).getText() != ',':
                 param = ctx.getChild(i).getText()
                 if param in params:
-                    raise Logo3DException('Duplicated param in \"' +  name + '\" proc definition.')
+                    raise Logo3DException(
+                        'Duplicated param in \"' + name + '\" proc definition.')
                 else:
                     params.append(ctx.getChild(i).getText())
             i += 1
         if name in self.procs:
             raise Logo3DException('Proc \"' + name + '\" already defined.')
         elif name in self.__TURTLE_LIBRARY:
-            raise Logo3DException('In \"'+ name +'\" proc, cannot override language procs.')
+            raise Logo3DException(
+                'In \"' + name + '\" proc, cannot override language procs.')
         else:
             self.procs[name] = Process(name, params, ctx.inss())
 
