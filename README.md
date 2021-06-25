@@ -1,7 +1,7 @@
 LP (Llenguatges de Programació)
 ==========
 
-This is a repository with my solved LP problems.
+This is a repository with my solved FIB LP problems.
 
 ## Contact
 
