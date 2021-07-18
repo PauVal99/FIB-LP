@@ -58,5 +58,4 @@ There are some sample tests:
 ## Author
 
 Pau Val
- + **DNI:** 46470753N
  + **email:** [pau.val@estudiantat.upc.edu](mailto:pau.val@estudiantat.upc.edu)

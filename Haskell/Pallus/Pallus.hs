@@ -18,7 +18,6 @@ data Term = Var String | Sym String
     deriving (Eq, Show)
 
 {-  Autor: Pau Val 
-    Dni: 46470753N 
     
     Notes:
 
